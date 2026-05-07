@@ -1,0 +1,3 @@
+create a controller
+
+php artisan make:controller ControllerNameController --resource
