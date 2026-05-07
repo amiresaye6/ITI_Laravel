@@ -27,15 +27,25 @@
                         <textarea name="description" rows="4"
                             class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition"
                             placeholder="What needs to be done? Add context or notes here..." required>
-                                {!! isset($task) ? nl2br(e($task['description'])) : "" !!}
-                            </textarea>
+                                    {!! isset($task) ? nl2br(e($task['description'])) : "" !!}
+                                </textarea>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Creator</label>
-                        <input type="text" name="creator"
-                            class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition"
-                            placeholder="Your name" required value="{{isset($task) ? $task['creator'] : ""}}">
+                        <select name="user_id"
+                            class="block w-full rounded-md border-0 py-2 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition"
+                            required>
+
+                            <option value="" disabled selected>-- Select a User --</option>
+
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}" 
+                                <?php echo (isset($task) && $task["user_id"] == $user->id) ? 'selected' : ''; ?>
+                                >{{ $user->name }}</option>
+                            @endforeach
+
+                        </select>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
