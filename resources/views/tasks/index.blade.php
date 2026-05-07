@@ -4,50 +4,51 @@
 @section('content')
     <div class="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
-            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Tasks</h2>
-            <p class="mt-1 text-sm text-slate-500">Manage your projects and daily responsibilities.</p>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Your Tasks</h2>
+            <p class="mt-2 text-sm text-slate-500">Manage your projects, deadlines, and daily responsibilities.</p>
         </div>
         <div class="mt-4 sm:mt-0">
             <x-button type="primary" href="{{ route('tasks.create') }}">
-                + Add Task
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                New Task
             </x-button>
         </div>
     </div>
 
-    <div class="bg-white shadow-sm ring-1 ring-slate-200 rounded-xl overflow-hidden">
+    <div class="bg-white shadow-md shadow-slate-200/50 ring-1 ring-slate-200 rounded-2xl overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200 text-left">
-                <thead class="bg-slate-50">
+                <thead class="bg-slate-50/80 backdrop-blur-sm">
                     <tr>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</th>
-                        <th
-                            class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">
-                            Creator</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Priority</th>
-                        <th
-                            class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
-                            Due Date</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">
-                            Actions</th>
+                        <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Task Info</th>
+                        <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Creator</th>
+                        <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Priority</th>
+                        <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell">Due Date</th>
+                        <th class="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 bg-white">
+                <tbody class="divide-y divide-slate-100 bg-white">
                     @foreach($tasks as $task)
-                        <tr class="hover:bg-slate-50 transition duration-150 ease-in-out">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                {{ str_pad($task['id'], 2, '0', STR_PAD_LEFT) }}
+                        <tr class="hover:bg-indigo-50/30 transition-colors duration-200 group">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400 font-medium">
+                                {{ str_pad($task['id'], 3, '0', STR_PAD_LEFT) }}
                             </td>
 
                             <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-slate-900">{{ $task['title'] }}</div>
-                                <div class="text-xs text-slate-500 truncate w-40 sm:w-64">
-                                    {{ Str::limit($task['description'], 40) }}
+                                <div class="text-sm font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">{{ $task['title'] }}</div>
+                                <div class="text-xs text-slate-500 truncate w-40 sm:w-64 mt-1">
+                                    {{ Str::limit($task['description'], 50) }}
                                 </div>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 hidden sm:table-cell">
-                                {{ $task['creator'] }}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 hidden sm:table-cell font-medium">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                                        {{ substr($task['creator'], 0, 1) }}
+                                    </div>
+                                    {{ $task['creator'] }}
+                                </div>
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -60,92 +61,93 @@
                                         'low' => 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
                                         default => 'bg-slate-100 text-slate-700 ring-slate-600/20',
                                     };
+                                    $dot = match ($p) {
+                                        'urgent' => 'bg-rose-500', 'high' => 'bg-amber-500', 'medium' => 'bg-blue-500', 'low' => 'bg-emerald-500', default => 'bg-slate-500'
+                                    };
                                 @endphp
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset {{ $badge }}">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ring-inset {{ $badge }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $dot }} mr-1.5 animate-pulse"></span>
                                     {{ $task['priority'] }}
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 hidden md:table-cell">
-                                {{ \Carbon\Carbon::parse($task['due_date'])->format('M j, Y') }}
+                            <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                                @php
+                                    $date = \Carbon\Carbon::parse($task['due_date']);
+                                    $isPast = $date->isPast() && !isset($task['deleted_at']);
+                                @endphp
+                                <div class="text-sm font-medium {{ $isPast ? 'text-rose-600' : 'text-slate-700' }}">
+                                    {{ $date->format('M j, Y') }}
+                                </div>
+                                <div class="text-xs {{ $isPast ? 'text-rose-400 font-medium' : 'text-slate-400' }} mt-0.5">
+                                    {{ $date->diffForHumans() }}
+                                </div>
                             </td>
 
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <div class="flex justify-center gap-2">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                                     @if (isset($task["deleted_at"]))
-                                        <form method="POST" action="{{ route('tasks.restore', $task['id']) }}">
+                                        <form method="POST" action="{{ route('tasks.restore', $task['id']) }}" class="inline">
                                             @csrf
-                                            <!-- @method('DELETE') -->
-                                            <x-button type="primary">
-                                                Restore
-                                            </x-button>
+                                            <button type="submit" title="Restore" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                            </button>
                                         </form>
-                                        <x-button type="danger" onclick="openDeleteModal({{ $task['id'] }})">
-                                            Force Delete
-                                        </x-button>
-
+                                        <button type="button" onclick="openDeleteModal({{ $task['id'] }})" title="Force Delete" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
                                     @else
-                                        <x-button type="primary" href="{{ route('tasks.show', $task['id']) }}">View</x-button>
-                                        <x-button type="secondary" href="{{ route('tasks.edit', $task['id']) }}">Edit</x-button>
-                                        <x-button type="danger" onclick="openDeleteModal({{ $task['id'] }})">
-                                            Delete
-                                        </x-button>
+                                        <a href="{{ route('tasks.show', $task['id']) }}" title="View" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors inline-block">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </a>
+                                        <a href="{{ route('tasks.edit', $task['id']) }}" title="Edit" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-block">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        </a>
+                                        <button type="button" onclick="openDeleteModal({{ $task['id'] }})" title="Delete" class="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors inline-block">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
                                     @endif
-                                    <div id="deleteModal-{{ $task['id'] }}"
-                                        class="hidden fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex justify-center items-center backdrop-blur-sm transition-opacity">
-
-                                        <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-6 text-center">
-                                            <svg class="mx-auto mb-4 text-red-500 w-12 h-12" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                                                </path>
-                                            </svg>
-
-                                            <h3 class="mb-5 text-lg font-normal text-slate-500 text-center">Are you sure you
-                                                want to {{ $task["deleted_at"] ? "force delete" : "delete" }}
-                                                <br />
-                                                <strong
-                                                    class="text-slate-800">{{ substr($task['title'], 0, 40)  . (strlen($task['title']) > 45 ? "..." : "") }}</strong>?
-                                            </h3>
-
-                                            <div class="flex justify-center gap-3">
-                                                <button type="button" onclick="closeDeleteModal({{ $task['id'] }})"
-                                                    class="text-slate-500 bg-white hover:bg-slate-100 focus:ring-4 focus:outline-none focus:ring-slate-200 rounded-lg border border-slate-200 text-sm font-medium px-5 py-2.5 hover:text-slate-900 transition">
-                                                    No, cancel
-                                                </button>
-
-                                                <form method="POST"
-                                                    action="{{ $task["deleted_at"] ? route('tasks.forceDelete', $task['id']) : route('tasks.destroy', $task['id']) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center transition">
-                                                        Yes, I'm sure
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </td>
                         </tr>
+
+                        <!-- Modal logic kept identical, just styled up -->
+                        <div id="deleteModal-{{ $task['id'] }}" class="hidden fixed inset-0 bg-slate-900/40 z-50 flex justify-center items-center backdrop-blur-sm transition-opacity">
+                            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center border border-slate-100 transform scale-100 transition-transform">
+                                <div class="w-16 h-16 rounded-full bg-rose-100 mx-auto flex items-center justify-center mb-6">
+                                    <svg class="text-rose-500 w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="mb-2 text-xl font-bold text-slate-900">Confirm Deletion</h3>
+                                <p class="mb-6 text-slate-500">Are you sure you want to {{ $task["deleted_at"] ? "force delete" : "delete" }}<br>
+                                    <strong class="text-slate-800">"{{ Str::limit($task['title'], 35) }}"</strong>?
+                                </p>
+                                <div class="flex justify-center gap-3">
+                                    <x-button type="default" onclick="closeDeleteModal({{ $task['id'] }})">Cancel</x-button>
+                                    <form method="POST" action="{{ $task["deleted_at"] ? route('tasks.forceDelete', $task['id']) : route('tasks.destroy', $task['id']) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-button type="danger">Yes, Delete</x-button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @endforeach
                 </tbody>
             </table>
-            <div class="mt-4">
-                {{ $tasks->withQueryString()->links() }}
-            </div>
+            
+            <!-- Pagination area styling -->
+            @if($tasks->hasPages())
+                <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
+                    {{ $tasks->withQueryString()->links() }}
+                </div>
+            @endif
         </div>
     </div>
-    <script>
-        function openDeleteModal(id) {
-            document.getElementById('deleteModal-' + id).classList.remove('hidden');
-        }
 
-        function closeDeleteModal(id) {
-            document.getElementById('deleteModal-' + id).classList.add('hidden');
-        }
+    <script>
+        function openDeleteModal(id) { document.getElementById('deleteModal-' + id).classList.remove('hidden'); }
+        function closeDeleteModal(id) { document.getElementById('deleteModal-' + id).classList.add('hidden'); }
     </script>
 @endsection
