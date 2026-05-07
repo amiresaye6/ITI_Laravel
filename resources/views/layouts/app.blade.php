@@ -30,6 +30,8 @@
                 <div class="flex items-center gap-6">
                     <a href="{{ route('tasks.index') }}"
                         class="text-slate-300 hover:text-white transition font-medium text-sm">My Tasks</a>
+                    <a href="{{ route('tasks.index', ['status' => 'trashed']) }}"
+                        class="text-slate-300 hover:text-white transition font-medium text-sm">My Trash</a>
                     <a href="{{ route('tasks.create') }}"
                         class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition shadow-sm text-sm font-medium">
                         + Add Task

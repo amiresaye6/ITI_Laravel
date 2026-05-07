@@ -73,12 +73,25 @@
 
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                 <div class="flex justify-center gap-2">
-                                    <x-button type="primary" href="{{ route('tasks.show', $task['id']) }}">View</x-button>
-                                    <x-button type="secondary" href="{{ route('tasks.edit', $task['id']) }}">Edit</x-button>
-                                    <x-button type="danger" onclick="openDeleteModal({{ $task['id'] }})">
-                                        Delete
-                                    </x-button>
+                                    @if (isset($task["deleted_at"]))
+                                        <form method="POST" action="{{ route('tasks.restore', $task['id']) }}">
+                                            @csrf
+                                            <!-- @method('DELETE') -->
+                                            <x-button type="primary">
+                                                Restore
+                                            </x-button>
+                                        </form>
+                                        <x-button type="danger" onclick="openDeleteModal({{ $task['id'] }})">
+                                            Force Delete
+                                        </x-button>
 
+                                    @else
+                                        <x-button type="primary" href="{{ route('tasks.show', $task['id']) }}">View</x-button>
+                                        <x-button type="secondary" href="{{ route('tasks.edit', $task['id']) }}">Edit</x-button>
+                                        <x-button type="danger" onclick="openDeleteModal({{ $task['id'] }})">
+                                            Delete
+                                        </x-button>
+                                    @endif
                                     <div id="deleteModal-{{ $task['id'] }}"
                                         class="hidden fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex justify-center items-center backdrop-blur-sm transition-opacity">
 
@@ -90,8 +103,11 @@
                                                 </path>
                                             </svg>
 
-                                            <h3 class="mb-5 text-lg font-normal text-slate-500">Are you sure you want to delete
-                                                <strong class="text-slate-800">{{ $task['title'] }}</strong>?
+                                            <h3 class="mb-5 text-lg font-normal text-slate-500 text-center">Are you sure you
+                                                want to {{ $task["deleted_at"] ? "force delete" : "delete" }}
+                                                <br />
+                                                <strong
+                                                    class="text-slate-800">{{ substr($task['title'], 0, 40)  . (strlen($task['title']) > 45 ? "..." : "") }}</strong>?
                                             </h3>
 
                                             <div class="flex justify-center gap-3">
@@ -100,7 +116,8 @@
                                                     No, cancel
                                                 </button>
 
-                                                <form method="POST" action="{{ route('tasks.destroy', $task['id']) }}">
+                                                <form method="POST"
+                                                    action="{{ $task["deleted_at"] ? route('tasks.forceDelete', $task['id']) : route('tasks.destroy', $task['id']) }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
@@ -117,8 +134,8 @@
                     @endforeach
                 </tbody>
             </table>
-            <div class="mt-6">
-                {{ $tasks->links() }}
+            <div class="mt-4">
+                {{ $tasks->withQueryString()->links() }}
             </div>
         </div>
     </div>

@@ -11,11 +11,30 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::withTrashed()->paginate(10);
-        return view("tasks.index", ['tasks' => $tasks]);
 
+        if ($request->query("status") == "trashed") {
+            $tasks = Task::onlyTrashed()->paginate(10);
+        } else {
+            $tasks = Task::paginate(10);
+        }
+        // $tasks = Task::withTrashed()->paginate(10);
+        return view("tasks.index", ['tasks' => $tasks]);
+    }
+
+    public function forceDelete($id)
+    {
+        $task = Task::onlyTrashed()->findOrFail($id);
+        $task->forceDelete();
+        return redirect()->route("tasks.index", ["status" => "trashed"]);
+    }
+    public function restore($id)
+    {
+        $task = Task::onlyTrashed()->findOrFail($id);
+        // dd($task);
+        $task->restore();
+        return redirect()->route("tasks.index", ["status" => "trashed"]);
     }
 
     /**
@@ -24,7 +43,7 @@ class TaskController extends Controller
     public function create()
     {
         $users = User::all();
-        return view("tasks.create", ["users"=> $users]);
+        return view("tasks.create", ["users" => $users]);
     }
 
     /**
@@ -52,7 +71,7 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
         $users = User::all();
-        return view("tasks.create", ["task" => $task, "users"=> $users]);
+        return view("tasks.create", ["task" => $task, "users" => $users]);
     }
 
     /**
