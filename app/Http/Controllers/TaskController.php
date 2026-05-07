@@ -51,17 +51,23 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id, TaskManager $taskManager)
     {
-        //
+        $task = $taskManager->find($id);
+        return view("tasks.create", ["task" => $task]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id, TaskManager $taskManager)
     {
-        //
+        // echo "botato";
+        $newData = $request->except("_token");
+        // var_dump($newData);
+        $taskManager->updateTask($id, $newData);
+        // return;
+        return redirect()->route("tasks.index");
     }
 
     /**

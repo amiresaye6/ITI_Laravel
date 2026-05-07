@@ -265,19 +265,19 @@ class TaskManager
     }
 
 
-    // public function updateTask($id, $data)
-    // {
-    //     $tasks = session()->get("tasks");
-    //     $taskToUpdate = null;
-    //     foreach ($tasks as $task) {
-    //         if ($task["id"] == $id) {
-    //             $taskToUpdate = $task;
-    //         }
-    //     }
-    //     if(isset($taskToUpdate)) {
-
-    //     }
-    // }
+public function updateTask($id, $data)
+{
+    $tasks = session()->get("tasks", []); 
+    
+    foreach ($tasks as $key => $task) {
+        if ($task["id"] == $id) {
+            $data["id"] = $id;
+            $tasks[$key] = array_merge($task, $data);
+            session()->put("tasks", $tasks);
+            break;
+        }
+    }
+}
 
 
     public function addTask($data)
@@ -286,13 +286,13 @@ class TaskManager
 
         $newId = time();
         // $newId = count($tasks) > 9 ? max(array_column($tasks, "id")) + 1 : 1;
-        $data["id" ] = $newId;
+        $data["id"] = $newId;
 
         $tasks[] = $data;
 
         session()->put("tasks", $tasks);
     }
-    
+
     public function deleteTask($id)
     {
         $tasks = session()->get("tasks");
