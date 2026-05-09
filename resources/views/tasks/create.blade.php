@@ -23,76 +23,97 @@
                     @csrf
                     @if(isset($task)) @method('PUT') @endif
 
+                    <!-- Title -->
                     <div class="group">
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Task Title</label>
                         <input type="text" name="title"
-                            class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all duration-200 group-hover:ring-slate-400"
-                            placeholder="e.g., Fix database indexing" required
-                            value="{{isset($task) ? $task['title'] : ""}}">
+                            class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset {{ $errors->has('title') ? 'ring-rose-500' : 'ring-slate-300' }} focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                            placeholder="e.g., Fix database indexing" value="{{ old('title', $task['title'] ?? '') }}">
+                        @error('title')
+                            <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
+                    <!-- Description -->
                     <div class="group">
                         <label class="block text-sm font-semibold text-slate-700 mb-1">Description</label>
                         <textarea name="description" rows="4"
-                            class="block w-full rounded-lg border-0 py-3 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all duration-200 group-hover:ring-slate-400"
-                            placeholder="What needs to be done? Add context or notes here..."
-                            required>{!! isset($task) ? strip_tags($task['description']) : "" !!}</textarea>
+                            class="block w-full rounded-lg border-0 py-3 px-4 text-slate-900 shadow-sm ring-1 ring-inset {{ $errors->has('description') ? 'ring-rose-500' : 'ring-slate-300' }} focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                            placeholder="What needs to be done? Add context or notes here...">{{ old('description', isset($task) ? strip_tags($task['description']) : '') }}</textarea>
+                        @error('description')
+                            <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <div class="group">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Assigned To</label>
-                        <div class="relative">
-                            <select name="user_id"
-                                class="block w-full appearance-none rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all duration-200 group-hover:ring-slate-400 bg-white"
-                                required>
-                                <option value="" disabled selected>-- Select a Team Member --</option>
+                    <!-- Creator & Assignee Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Creator ID -->
+                        <div class="group">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Creator</label>
+                            <select name="creator_id"
+                                class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset {{ $errors->has('creator_id') ? 'ring-rose-500' : 'ring-slate-300' }} bg-white focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <option value="" disabled {{ old('creator_id', $task['creator_id'] ?? '') == '' ? 'selected' : '' }}>-- Select Creator --</option>
                                 @foreach($users as $user)
-                                    <option value="{{ $user->id }}" <?php    echo (isset($task) && $task["user_id"] == $user->id) ? 'selected' : ''; ?>>
+                                    <option value="{{ $user->id }}" {{ old('creator_id', $task['creator_id'] ?? '') == $user->id ? 'selected' : '' }}>
                                         {{ $user->name }}
                                     </option>
                                 @endforeach
                             </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </div>
+                            @error('creator_id')
+                                <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Assignee ID -->
+                        <div class="group">
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Assigned To</label>
+                            <select name="user_id"
+                                class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset {{ $errors->has('user_id') ? 'ring-rose-500' : 'ring-slate-300' }} bg-white focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <option value="" disabled {{ old('user_id', $task['user_id'] ?? '') == '' ? 'selected' : '' }}>-- Select Assignee --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('user_id', $task['user_id'] ?? '') == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('user_id')
+                                <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
+                    <!-- Date & Priority Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div class="group">
                             <label class="block text-sm font-semibold text-slate-700 mb-1">Due Date</label>
                             <input type="date" name="due_date"
-                                class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all duration-200 group-hover:ring-slate-400"
-                                required value="{{isset($task) ? $task['due_date'] : ""}}">
+                                class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset {{ $errors->has('due_date') ? 'ring-rose-500' : 'ring-slate-300' }} focus:ring-2 focus:ring-indigo-600 sm:text-sm"
+                                value="{{ old('due_date', $task['due_date'] ?? '') }}">
+                            @error('due_date')
+                                <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
+                            @enderror
                         </div>
+
                         <div class="group">
                             <label class="block text-sm font-semibold text-slate-700 mb-1">Priority Level</label>
-                            <div class="relative">
-                                <select name="priority"
-                                    class="block w-full appearance-none rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-all duration-200 group-hover:ring-slate-400 bg-white">
-                                    <option <?php echo (isset($task) && $task["priority"] == "Low") ? 'selected' : ''; ?>
-                                        value="Low">Low</option>
-                                    <option <?php echo (isset($task) && $task["priority"] == "Medium") ? 'selected' : ''; ?>
-                                        value="Medium">Medium</option>
-                                    <option <?php echo (isset($task) && $task["priority"] == "High") ? 'selected' : ''; ?>
-                                        value="High">High</option>
-                                    <option <?php echo (isset($task) && $task["priority"] == "Urgent") ? 'selected' : ''; ?>
-                                        value="Urgent">Urgent</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                            <select name="priority"
+                                class="block w-full rounded-lg border-0 py-2.5 px-4 text-slate-900 shadow-sm ring-1 ring-inset {{ $errors->has('priority') ? 'ring-rose-500' : 'ring-slate-300' }} bg-white focus:ring-2 focus:ring-indigo-600 sm:text-sm">
+                                <option value="low" {{ old('priority', $task['priority'] ?? '') == 'low' ? 'selected' : '' }}>
+                                    Low</option>
+                                <option value="medium" {{ old('priority', $task['priority'] ?? '') == 'medium' ? 'selected' : '' }}>Medium</option>
+                                <option value="high" {{ old('priority', $task['priority'] ?? '') == 'high' ? 'selected' : '' }}>High</option>
+                                <option value="urgent" {{ old('priority', $task['priority'] ?? '') == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                            </select>
+                            @error('priority')
+                                <p class="mt-1 text-sm text-rose-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
+
+                    <!-- Hidden status for creation (defaults to to-do) -->
+                    @if(!isset($task))
+                        <input type="hidden" name="status" value="to-do">
+                    @endif
 
                     <div class="pt-6 mt-6 border-t border-slate-100 flex justify-end gap-3">
                         <x-button href="{{ route('tasks.index') }}" type="default">Cancel</x-button>

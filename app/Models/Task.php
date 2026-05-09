@@ -16,8 +16,24 @@ class Task extends Model
         "user_id",
         "priority",
         "completed",
-        "due_date"
+        "due_date",
+        "creator_id",
     ];
-    protected $guarded = ["id", "created_at", "updated_at"];
 
+    public function creator()
+    {
+        return $this->belongsTo(User::class, "creator_id");
+    }
+
+
+    public function assignee()
+    {
+        return $this->belongsTo(User::class, "user_id");
+    }
+
+
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, "commentable");
+    }
 }

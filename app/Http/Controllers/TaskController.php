@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,12 +15,13 @@ class TaskController extends Controller
     public function index(Request $request)
     {
 
+        $query = Task::with(['creator', 'assignee']);
+
         if ($request->query("status") == "trashed") {
-            $tasks = Task::onlyTrashed()->paginate(10);
+            $tasks = $query->onlyTrashed()->paginate(10);
         } else {
-            $tasks = Task::paginate(10);
+            $tasks = $query->paginate(10);
         }
-        // $tasks = Task::withTrashed()->paginate(10);
         return view("tasks.index", ['tasks' => $tasks]);
     }
 
@@ -49,9 +51,9 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
-        Task::create($request->except("_token"));
+        Task::create($request->validated());
         return redirect()->route("tasks.index");
     }
 
@@ -60,8 +62,11 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::findOrFail($id);
-        return view("tasks.show", ['task' => $task]);
+        $task = Task::with(['creator', 'assignee', 'comments.user'])->findOrFail($id);
+
+        $users = User::all();
+
+        return view("tasks.show", ['task' => $task, 'users' => $users]);
     }
 
     /**
@@ -77,10 +82,10 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(TaskRequest $request, string $id)
     {
         $task = Task::findOrFail($id);
-        $task->update($request->except("_token", "_method"));
+        $task->update($request->validated());
         return redirect()->route("tasks.index");
     }
 

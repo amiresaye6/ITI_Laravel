@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,3 +24,5 @@ Route::post("/tasks/{task}", [TaskController::class, "restore"])->name("tasks.re
 Route::delete("/tasks/{task}", [TaskController::class, "destroy"])->name("tasks.destroy");
 // perminant delete :__;
 Route::delete("/tasks/{task}/force", [TaskController::class, "forceDelete"])->name("tasks.forceDelete");
+
+Route::post('/tasks/{task}/comments', [CommentController::class, 'store'])->name('tasks.comments.store');
