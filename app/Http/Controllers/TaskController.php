@@ -6,6 +6,7 @@ use App\Http\Requests\TaskRequest;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TaskController extends Controller
 {
@@ -28,6 +29,9 @@ class TaskController extends Controller
     public function forceDelete($id)
     {
         $task = Task::onlyTrashed()->findOrFail($id);
+        foreach ($task->images as $image) {
+            Storage::disk('public')->delete($image->path);
+        }
         $task->forceDelete();
         return redirect()->route("tasks.index", ["status" => "trashed"]);
     }
@@ -53,16 +57,24 @@ class TaskController extends Controller
      */
     public function store(TaskRequest $request)
     {
-        Task::create($request->validated());
+        $task = Task::create($request->validated());
+
+        if ($request->hasFile("images")) {
+            foreach ($request->file("images") as $imageFile) {
+                $path = $imageFile->store("tasks", "public");
+                $task->images()->create(["path" => $path]);
+            }
+        }
+
         return redirect()->route("tasks.index");
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        $task = Task::with(['creator', 'assignee', 'comments.user'])->findOrFail($id);
+        $task = Task::with(['creator', 'assignee', 'comments.user'])->where("slug", $slug)->firstOrFail();
 
         $users = User::all();
 
@@ -86,6 +98,21 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
         $task->update($request->validated());
+
+        if ($request->hasFile("images")) {
+            foreach ($task->images as $oldImage) {
+                Storage::disk("public")->delete($oldImage->path);
+            }
+        }
+
+        if ($request->file("images")) {
+            $task->images()->delete();
+            foreach ($request->file("images") as $imageFile) {
+                $path = $imageFile->store("task", "public");
+                $task->images()->create(["path" => $path]);
+            }
+        }
+
         return redirect()->route("tasks.index");
     }
 

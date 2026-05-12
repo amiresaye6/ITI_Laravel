@@ -21,6 +21,6 @@ class CommentController extends Controller
             "user_id" => $request->user_id,
         ]);
 
-        return redirect()->route("tasks.show", $task->id);
+        return redirect()->route("tasks.show", $task->slug);
     }
 }

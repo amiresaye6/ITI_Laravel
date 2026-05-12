@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,6 +11,7 @@ class Task extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use Sluggable;
     protected $fillable = [
         "title",
         "description",
@@ -35,5 +37,19 @@ class Task extends Model
     public function comments()
     {
         return $this->morphMany(Comment::class, "commentable");
+    }
+
+    public function images()
+    {
+        return $this->hasMany(TaskImage::class);
+    }
+
+    public function sluggable():array
+    {
+        return [
+            "slug" => [
+                "source" => "title"
+            ]
+        ];
     }
 }

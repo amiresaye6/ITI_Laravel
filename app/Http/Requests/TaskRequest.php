@@ -34,7 +34,8 @@ class TaskRequest extends FormRequest
             'user_id' => 'required|exists:users,id',
             'due_date' => 'required|date',
             'priority' => 'required|in:low,medium,high,urgent',
-            'status' => 'nullable|in:to-do,in_progress,done'
+            'status' => 'nullable|in:to-do,in_progress,done',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ];
     }
 
