@@ -14,14 +14,18 @@ class TaskResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-    
-         return [
+
+        return [
             'id' => $this->id,
             'title' => $this->title,
+            'slug' => $this->slug,
             'description' => $this->description,
-            'status' => $this->status,
+            'priority' => $this->priority,
+            'completed' => (bool) $this->completed,
             'due_date' => $this->due_date,
+
             'creator' => new UserResource($this->whenLoaded('creator')),
+            'assignee' => new UserResource($this->whenLoaded('assignee')),
         ];
     }
 }

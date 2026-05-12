@@ -14,8 +14,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::with('creator')->paginate(10);
-
+        $tasks = Task::with(['creator', 'assignee'])->paginate(10);
         return TaskResource::collection($tasks);
     }
 
@@ -27,8 +26,10 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'status' => 'required|in:to-do,in_progress,done',
-            'creator_id' => 'required|exists:users,id',
+            // 'creator_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
+            'completed' => 'nullable|boolean',
+            'due_date' => 'required|date',
         ]);
 
         $task = Task::create($validated);
@@ -41,7 +42,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        $task->load('creator');
+        $task->load(['creator', 'assignee']);
         return new TaskResource($task);
     }
 
@@ -53,7 +54,11 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'status' => 'sometimes|required|in:to-do,in_progress,done',
+            'creator_id' => 'sometimes|required|exists:users,id',
+            'user_id' => 'sometimes|required|exists:users,id',
+            'priority' => 'sometimes|nullable|string',
+            'completed' => 'sometimes|boolean',
+            'due_date' => 'sometimes|required|date',
         ]);
 
         $task->update($validated);
