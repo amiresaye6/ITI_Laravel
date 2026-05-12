@@ -5,6 +5,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\WebSocialAuthController;
+
+Route::get('/auth/{provider}/redirect', [WebSocialAuthController::class, 'redirect'])->name('social.redirect');
+Route::get('/auth/{provider}/callback', [WebSocialAuthController::class, 'callback']);
+
 Route::get('/', function () {
     return ('welcome');
 });
